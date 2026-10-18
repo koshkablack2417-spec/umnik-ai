@@ -23,3 +23,18 @@ create policy "Users can insert their own chat messages"
 create policy "Users can delete their own chat messages"
   on public.chat_messages for delete
   using (auth.uid() = user_id);
+
+
+-- Stripe subscription records. Never expose this table to browser clients.
+create table if not exists public.billing_subscriptions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  stripe_customer_id text not null,
+  stripe_subscription_id text not null unique,
+  status text not null,
+  plan text not null,
+  current_period_end timestamptz,
+  updated_at timestamptz not null default now()
+);
+alter table public.billing_subscriptions enable row level security;
+-- No client-facing policies: only the trusted webhook service role may write/read these records.
