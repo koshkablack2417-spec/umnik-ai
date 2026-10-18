@@ -173,7 +173,7 @@ export default function Home() {
           <div className="topRight">
             <label className="settingControl"><span>{t.theme}</span><select className="modelSelect" value={theme} onChange={(event) => setTheme(event.target.value as Theme)} aria-label={t.theme}><option value="auto">{t.auto}</option><option value="light">{t.light}</option><option value="dark">{t.dark}</option></select></label>
             <label className="settingControl"><span>{t.language}</span><select className="modelSelect languageSelect" value={language} onChange={(event) => setLanguage(event.target.value as Language)} aria-label={t.language}>{languages.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
-            <span className="status">{t.ready}</span><a className="authLink" href="/pricing">Тарифы</a><a className="authLink" href="/login">{userEmail ? userEmail : "Войти"}</a><span className="avatar">🧠</span>
+            <span className="status">{t.ready}</span><a className="authLink" href="/artifacts">Артефакты</a><a className="authLink" href="/studio">Медиа</a><a className="authLink" href="/pricing">Тарифы</a><a className="authLink" href="/login">{userEmail ? userEmail : "Войти"}</a><span className="avatar">🧠</span>
           </div>
         </header>
 
