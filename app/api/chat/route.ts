@@ -17,7 +17,7 @@ const providerConfig: Record<Exclude<ProviderId, "gemini" | "claude">, {
 };
 
 const systemPrompt = (language: string) =>
-  `Ты — Умник AI, внимательный, дружелюбный и честный помощник. Приоритет — точность и полезность, а не уверенный тон. Отвечай на языке пользователя; язык интерфейса: ${language}. Не выдумывай факты, источники, ссылки, цитаты или выполненные действия. Если не уверен или данных недостаточно, прямо обозначь неопределённость и задай уточняющий вопрос, когда это важно. Для вычислений проверяй шаги и единицы измерения; для сложных тем объясняй ясно и структурированно. Не утверждай, что у тебя есть доступ к актуальным данным или инструментам, которых нет.`;
+  `Ты — Умник AI, полезный, внимательный и честный ИИ-помощник. Отвечай прежде всего на последнее сообщение пользователя и учитывай предыдущую переписку только как контекст. Отвечай на языке пользователя; язык интерфейса: ${language}. По умолчанию пиши ясно, естественно и по делу; для сложных задач используй короткие разделы и пошаговые инструкции. Если просят код, предоставляй цельный, согласованный пример и указывай важные предпосылки. Не выдумывай факты, источники, ссылки, цитаты, результаты проверок или выполненные действия. Если не знаешь ответа или не хватает данных, честно скажи об этом и задай один конкретный уточняющий вопрос, когда он необходим. Для вычислений проверяй шаги и единицы. Не утверждай, что можешь просматривать интернет, видеть аккаунты, запускать код или менять внешние сервисы, если соответствующий инструмент реально не предоставлен. Не проси пользователя публиковать пароли, API-ключи, токены или другие секреты.`;
 
 function extractOpenAICompatibleText(data: unknown): string {
   const obj = data as { choices?: Array<{ message?: { content?: string | Array<{ text?: string }> } }> };
@@ -74,6 +74,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Неизвестный AI-провайдер." }, { status: 400 });
     }
 
+    // The current message is sent separately from history by the chat UI; include it for every provider.
+    const conversation: ChatMessage[] = [...history, { role: "user", content: message }];
     const system = systemPrompt(language);
     let text = "";
 
@@ -83,7 +85,7 @@ export async function POST(request: Request) {
       const ai = new GoogleGenAI({ apiKey });
       const result = await ai.models.generateContent({
         model: "gemini-2.5-flash",
-        contents: history.map((item) => ({ role: item.role === "assistant" ? "model" : "user", parts: [{ text: item.content }] })),
+        contents: conversation.map((item) => ({ role: item.role === "assistant" ? "model" : "user", parts: [{ text: item.content }] })),
         config: { systemInstruction: system },
       });
       text = result.text ?? "";
@@ -93,7 +95,7 @@ export async function POST(request: Request) {
       const response = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
         headers: { "x-api-key": apiKey, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-        body: JSON.stringify({ model: "claude-3-5-haiku-latest", max_tokens: 2048, system, messages: history }),
+        body: JSON.stringify({ model: "claude-3-5-haiku-latest", max_tokens: 2048, system, messages: conversation }),
         signal: AbortSignal.timeout(60_000),
       });
       if (!response.ok) {
@@ -109,7 +111,7 @@ export async function POST(request: Request) {
       const config = providerConfig[provider];
       const apiKey = process.env[config.env];
       if (!apiKey) return NextResponse.json({ error: `${provider === "openai" ? "ChatGPT" : provider === "grok" ? "Grok" : "Qwen"} не настроен: добавь ${config.env} в переменные окружения сайта.` }, { status: 503 });
-      text = await openAICompatible(config.endpoint, apiKey, config.model, history, system);
+      text = await openAICompatible(config.endpoint, apiKey, config.model, conversation, system);
     }
 
     return NextResponse.json({ text: text || "Не удалось получить текстовый ответ." });
