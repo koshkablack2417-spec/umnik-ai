@@ -27,13 +27,13 @@ function extractOpenAICompatibleText(data: unknown): string {
   return "";
 }
 
-async function openAICompatible(endpoint: string, apiKey: string, model: string, message: string, system: string) {
+async function openAICompatible(endpoint: string, apiKey: string, model: string, history: ChatMessage[], system: string) {
   const response = await fetch(endpoint, {
     method: "POST",
     headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({
       model,
-      messages: [{ role: "system", content: system }, { role: "user", content: message }],
+      messages: [{ role: "system", content: system }, ...history],
       temperature: 0.7,
     }),
     signal: AbortSignal.timeout(60_000),
@@ -72,7 +72,7 @@ export async function POST(request: Request) {
       const ai = new GoogleGenAI({ apiKey });
       const result = await ai.models.generateContent({
         model: "gemini-2.5-flash",
-        contents: message,
+        contents: history.map((item) => ({ role: item.role === "assistant" ? "model" : "user", parts: [{ text: item.content }] })),
         config: { systemInstruction: system },
       });
       text = result.text ?? "";
@@ -82,7 +82,7 @@ export async function POST(request: Request) {
       const response = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
         headers: { "x-api-key": apiKey, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-        body: JSON.stringify({ model: "claude-3-5-haiku-latest", max_tokens: 2048, system, messages: [{ role: "user", content: message }] }),
+        body: JSON.stringify({ model: "claude-3-5-haiku-latest", max_tokens: 2048, system, messages: history }),
         signal: AbortSignal.timeout(60_000),
       });
       if (!response.ok) {
@@ -98,7 +98,7 @@ export async function POST(request: Request) {
       const config = providerConfig[provider];
       const apiKey = process.env[config.env];
       if (!apiKey) return NextResponse.json({ error: `${provider === "openai" ? "ChatGPT" : provider === "grok" ? "Grok" : "Qwen"} не настроен: добавь ${config.env} в переменные окружения сайта.` }, { status: 503 });
-      text = await openAICompatible(config.endpoint, apiKey, config.model, message, system);
+      text = await openAICompatible(config.endpoint, apiKey, config.model, history, system);
     }
 
     return NextResponse.json({ text: text || "Не удалось получить текстовый ответ." });
