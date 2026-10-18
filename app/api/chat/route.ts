@@ -74,8 +74,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Неизвестный AI-провайдер." }, { status: 400 });
     }
 
-    // The current message is sent separately from history by the chat UI; include it for every provider.
-    const conversation: ChatMessage[] = [...history, { role: "user", content: message }];
+    // The chat UI may include the current message in history as well as in message.
+    // Avoid sending it twice, while still supporting clients that send history only.
+    const lastHistoryMessage = history[history.length - 1];
+    const conversation: ChatMessage[] = lastHistoryMessage?.role === "user" && lastHistoryMessage.content === message
+      ? history
+      : [...history, { role: "user", content: message }];
     const system = systemPrompt(language);
     let text = "";
 
