@@ -43,7 +43,7 @@ export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [theme, setTheme] = useState<Theme>("auto");
+  const [theme, setTheme] = useState<Theme>("light");
   const [language, setLanguage] = useState<Language>("ru");
   const [userEmail, setUserEmail] = useState<string | null>(null);
 
