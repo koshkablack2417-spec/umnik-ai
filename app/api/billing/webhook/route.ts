@@ -164,7 +164,7 @@ export async function POST(request: Request) {
         const subscriptionId = invoiceSubscriptionId(invoice);
         if (subscriptionId) {
           subscription = await stripe.subscriptions.retrieve(subscriptionId);
-          invoiceId = invoice.id;
+          invoiceId = invoice.id ?? null;
           paymentStatus = event.type === "invoice.payment_failed" || event.type === "invoice.payment_action_required"
             ? "failed"
             : "paid";
@@ -180,7 +180,7 @@ export async function POST(request: Request) {
           const subscriptionId = invoiceSubscriptionId(invoice);
           if (subscriptionId) {
             subscription = await stripe.subscriptions.retrieve(subscriptionId);
-            invoiceId = invoice.id;
+            invoiceId = invoice.id ?? null;
             paymentStatus = charge.amount_refunded > 0 ? "refunded" : "paid";
           }
         }
