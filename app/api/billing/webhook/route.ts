@@ -48,7 +48,19 @@ async function persistSubscription(
     plan: subscription.metadata?.plan ?? "unknown",
     updated_at: new Date().toISOString(),
   };
-  if (paymentStatus !== "unknown") record.payment_status = paymentStatus;
+  if (paymentStatus !== "unknown") {
+    // A late invoice event must never undo a refund recorded for that same invoice.
+    const { data: existing } = await admin
+      .from("billing_subscriptions")
+      .select("payment_status,last_invoice_id")
+      .eq("stripe_subscription_id", subscription.id)
+      .maybeSingle();
+    const sameInvoiceWasRefunded =
+      Boolean(invoiceId) &&
+      existing?.last_invoice_id === invoiceId &&
+      existing?.payment_status === "refunded";
+    if (!sameInvoiceWasRefunded) record.payment_status = paymentStatus;
+  }
   if (invoiceId) record.last_invoice_id = invoiceId;
   const end = periodEnd(subscription);
   if (end) record.current_period_end = end;
@@ -168,7 +180,7 @@ export async function POST(request: Request) {
           if (subscriptionId) {
             subscription = await stripe.subscriptions.retrieve(subscriptionId);
             invoiceId = invoice.id;
-            paymentStatus = charge.refunded ? "refunded" : "paid";
+            paymentStatus = charge.amount_refunded > 0 ? "refunded" : "paid";
           }
         }
         break;
