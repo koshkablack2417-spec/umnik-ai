@@ -8,6 +8,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const message = typeof body.message === "string" ? body.message.trim() : "";
     const provider = body.provider ?? "gemini";
+    const language = typeof body.language === "string" ? body.language : "ru";
 
     if (!message) {
       return NextResponse.json({ error: "Напиши сообщение, чтобы начать." }, { status: 400 });
@@ -28,7 +29,7 @@ export async function POST(request: Request) {
     const result = await ai.models.generateContent({
       model: "gemini-2.5-flash",
       contents: message,
-      config: { systemInstruction: "Ты — Умник AI, полезный, дружелюбный и честный помощник. Отвечай на языке пользователя. Не утверждай, что у тебя есть функции или данные, которых нет." },
+      config: { systemInstruction: `Ты — Умник AI, полезный, дружелюбный и честный помощник. Отвечай на языке пользователя. Если выбран язык интерфейса: ${language}, по возможности отвечай на этом языке. Не утверждай, что у тебя есть функции или данные, которых нет.` },
     });
     return NextResponse.json({ text: result.text ?? "Не удалось получить текстовый ответ." });
   } catch (error) {
