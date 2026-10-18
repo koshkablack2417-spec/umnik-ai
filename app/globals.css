@@ -52,3 +52,24 @@ html[data-theme="light"] .avatar{background:#eee9ff;color:#5845a0}
 .authError{color:#ffb6bf;background:#361a24;border:1px solid #63303d}
 .authFinePrint{margin:20px 0 0;color:#7d859a;font-size:10px;line-height:1.6;text-align:center}
 @media(max-width:650px){.authCard{padding:23px 18px}.authCard h1{font-size:24px}.authLink{max-width:110px;padding:7px 8px}.topbar{padding:0 14px;gap:8px}.topRight{gap:7px}.settingControl>span,.status{display:none}.brandIconImage{width:34px;height:34px}}
+
+.pricingPage{min-height:100vh;padding:28px 18px 54px;background:radial-gradient(ellipse at 50% 0%,#282052 0,transparent 44%),#090b10;color:#f4f5fb;text-align:center}
+.pricingBack{display:block;max-width:1000px;margin:0 auto 28px;text-align:left;color:#b7bfd1;text-decoration:none;font-size:13px}
+.pricingLogo{width:78px;height:78px;object-fit:contain;margin:0 auto 8px}
+.pricingEyebrow{font-size:10px;letter-spacing:2px;color:#b7a5ff;font-weight:800}
+.pricingPage h1{font-size:clamp(30px,5vw,44px);letter-spacing:-1.4px;margin:10px 0}
+.pricingIntro{color:#9da5ba;font-size:14px;margin:0 auto 32px;max-width:480px;line-height:1.7}
+.pricingGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;max-width:940px;margin:0 auto;text-align:left}
+.pricingCard{position:relative;border:1px solid #30364a;background:#11141d;border-radius:18px;padding:24px 21px}
+.pricingCard.featured{border-color:#8a78f3;box-shadow:0 0 35px #7663f322}
+.pricingBadge{font-size:10px;color:#d8d0ff;background:#30275b;padding:5px 8px;border-radius:20px}
+.pricingCard h2{font-size:17px;margin:14px 0}
+.pricingPrice{font-size:34px;font-weight:800;letter-spacing:-1px;margin:16px 0 8px}
+.pricingPrice span{font-size:11px;letter-spacing:0;color:#a0a8bb;font-weight:500}
+.pricingDetail{font-size:12px;color:#9da5ba;min-height:36px}
+.pricingButton{width:100%;margin-top:14px;padding:12px;border:0;border-radius:10px;background:linear-gradient(100deg,#6b5cf6,#2468f2);color:white;font-size:12px;font-weight:700;cursor:pointer}
+.pricingButton:disabled{opacity:.55;cursor:wait}
+.pricingLegal{max-width:720px;margin:28px auto 0;color:#7d859a;font-size:11px;line-height:1.7}
+.pricingError{max-width:600px;margin:18px auto;color:#ffb6bf;font-size:13px;line-height:1.6}
+.pricingError a{color:#d2c9ff}
+@media(max-width:700px){.pricingGrid{grid-template-columns:1fr;max-width:420px}.pricingCard{padding:20px}.pricingIntro{margin-bottom:24px}}
