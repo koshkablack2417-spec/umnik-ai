@@ -46,6 +46,9 @@ export default function Home() {
   const [theme, setTheme] = useState<Theme>("light");
   const [language, setLanguage] = useState<Language>("ru");
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [chatId, setChatId] = useState<string>("");
+  const [cloudSettingsLoaded, setCloudSettingsLoaded] = useState(false);
 
   useEffect(() => {
     try {
@@ -63,24 +66,55 @@ export default function Home() {
     supabase.auth.getUser().then(async ({ data }) => {
       if (!active) return;
       setUserEmail(data.user?.email ?? null);
-      if (!data.user) return;
+      setUserId(data.user?.id ?? null);
+      if (!data.user) {
+        setCloudSettingsLoaded(true);
+        return;
+      }
+      const { data: settings } = await supabase
+        .from("user_settings")
+        .select("theme,language,provider,active_chat_id")
+        .eq("user_id", data.user.id)
+        .maybeSingle();
+      const activeChatId = typeof settings?.active_chat_id === "string" ? settings.active_chat_id : crypto.randomUUID();
+      if (!active) return;
+      setChatId(activeChatId);
+      if (settings?.theme && ["auto", "light", "dark"].includes(settings.theme)) setTheme(settings.theme as Theme);
+      if (settings?.language && languages.some((item) => item.id === settings.language)) setLanguage(settings.language as Language);
+      if (settings?.provider && providers.some((item) => item.id === settings.provider)) setProvider(settings.provider as ProviderId);
       const { data: history } = await supabase
         .from("chat_messages")
         .select("role,text")
         .eq("user_id", data.user.id)
-        .order("created_at", { ascending: true })
+        .eq("chat_id", activeChatId)
+        .order("created_at", { ascending: false })
         .limit(100);
-      if (active && history?.length) {
-        setMessages(history.filter((item): item is { role: "user" | "assistant"; text: string } =>
-          (item.role === "user" || item.role === "assistant") && typeof item.text === "string"
-        ));
-      }
+      if (active && history) setMessages(history.reverse().filter((item) =>
+        (item.role === "user" || item.role === "assistant") && typeof item.text === "string"
+      ) as Message[]);
+      await supabase.from("user_settings").upsert({
+        user_id: data.user.id, theme: settings?.theme ?? "light",
+        language: settings?.language ?? "ru", provider: settings?.provider ?? "gemini",
+        active_chat_id: activeChatId, updated_at: new Date().toISOString(),
+      }, { onConflict: "user_id" });
+      if (active) setCloudSettingsLoaded(true);
     });
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
       setUserEmail(session?.user.email ?? null);
+      setUserId(session?.user.id ?? null);
     });
     return () => { active = false; authListener.subscription.unsubscribe(); };
   }, []);
+
+  useEffect(() => {
+    if (!userId || !chatId || !cloudSettingsLoaded) return;
+    const supabase = getSupabaseBrowserClient();
+    if (!supabase) return;
+    void supabase.from("user_settings").upsert({
+      user_id: userId, theme, language, provider, active_chat_id: chatId,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: "user_id" });
+  }, [userId, chatId, theme, language, provider, cloudSettingsLoaded]);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -111,7 +145,7 @@ export default function Home() {
     const supabase = getSupabaseBrowserClient();
     if (supabase) {
       void supabase.auth.getUser().then(({ data }) => {
-        if (data.user) void supabase.from("chat_messages").insert({ user_id: data.user.id, role: "user", text: message });
+        if (data.user && chatId) void supabase.from("chat_messages").insert({ user_id: data.user.id, chat_id: chatId, role: "user", text: message });
       });
     }
     setLoading(true);
@@ -126,7 +160,7 @@ export default function Home() {
       setMessages((old) => [...old, { role: "assistant", text: data.text }]);
       if (supabase) {
         void supabase.auth.getUser().then(({ data: authData }) => {
-          if (authData.user) void supabase.from("chat_messages").insert({ user_id: authData.user.id, role: "assistant", text: data.text });
+          if (authData.user && chatId) void supabase.from("chat_messages").insert({ user_id: authData.user.id, chat_id: chatId, role: "assistant", text: data.text });
         });
       }
     } catch (err) {
@@ -145,7 +179,12 @@ export default function Home() {
     <main className="shell">
       <aside className="sidebar">
         <div className="brand"><img src="/brain-cap.svg" alt="" className="brandIconImage" /><span>Умник AI</span></div>
-        <button className="newChat" onClick={() => { setMessages([]); setError(""); }}>{t.newChat}</button>
+        <button className="newChat" onClick={() => {
+          const nextChatId = crypto.randomUUID();
+          setChatId(nextChatId);
+          setMessages([]);
+          setError("");
+        }}>{t.newChat}</button>
         <div>
           <div className="sideLabel">{t.models}</div>
           <div className="modelList">
