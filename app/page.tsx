@@ -106,7 +106,7 @@ export default function Home() {
     if (!message || loading) return;
     setInput("");
     setError("");
-    setMessages((old) => [...old, { role: "user", text: message }]);
+    const conversation = [...messages, { role: "user" as const, text: message }].slice(-24);\n    setMessages((old) => [...old, { role: "user", text: message }]);
     const supabase = getSupabaseBrowserClient();
     if (supabase) {
       void supabase.auth.getUser().then(({ data }) => {
@@ -118,7 +118,7 @@ export default function Home() {
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message, provider, language }),
+        body: JSON.stringify({ message, provider, language, history: conversation.map(({ role, text }) => ({ role, content: text })) }),
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Something went wrong.");
