@@ -169,7 +169,8 @@ export default function Home() {
       <section className="main">
         <header className="topbar">
           <div className="mobileBrand"><img src="/brain-cap.svg" alt="" className="brandIconImage" />Умник AI</div>
-          <div className="topTitle">{t.workspace}</div>
+          <div className="topTitle umnikTopTitle">Умник</div>
+          <label className="topModelPicker"><span>Модель</span><select className="modelSelect topModelSelect" value={provider} onChange={(event) => setProvider(event.target.value as ProviderId)} aria-label="Выбрать модель">{providers.map((item) => <option key={item.id} value={item.id}>{item.name}{item.enabled ? "" : " — скоро"}</option>)}</select></label>
           <div className="topRight">
             <label className="settingControl"><span>{t.theme}</span><select className="modelSelect" value={theme} onChange={(event) => setTheme(event.target.value as Theme)} aria-label={t.theme}><option value="auto">{t.auto}</option><option value="light">{t.light}</option><option value="dark">{t.dark}</option></select></label>
             <label className="settingControl"><span>{t.language}</span><select className="modelSelect languageSelect" value={language} onChange={(event) => setLanguage(event.target.value as Language)} aria-label={t.language}>{languages.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
