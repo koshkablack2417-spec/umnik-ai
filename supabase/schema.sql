@@ -56,3 +56,73 @@ alter table public.billing_subscriptions
     check (payment_status in ('unknown', 'paid', 'failed', 'refunded'));
 alter table public.billing_subscriptions
   add column if not exists last_invoice_id text;
+
+
+-- Monthly media quotas: 20 images and 10 videos per user.
+create table if not exists public.generation_usage (
+  user_id uuid not null references auth.users(id) on delete cascade,
+  month_start date not null,
+  images_used integer not null default 0 check (images_used >= 0),
+  videos_used integer not null default 0 check (videos_used >= 0),
+  updated_at timestamptz not null default now(),
+  primary key (user_id, month_start)
+);
+alter table public.generation_usage enable row level security;
+-- No client policies: only the trusted server-side service role can access quota rows.
+
+create or replace function public.reserve_generation_quota(
+  p_user_id uuid,
+  p_kind text,
+  p_is_owner boolean default false
+)
+returns table(allowed boolean, remaining integer)
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_month date := date_trunc('month', now())::date;
+  v_used integer;
+  v_limit integer;
+begin
+  if p_kind not in ('image', 'video') then
+    raise exception 'Unsupported generation kind';
+  end if;
+
+  insert into public.generation_usage(user_id, month_start)
+  values (p_user_id, v_month)
+  on conflict (user_id, month_start) do nothing;
+
+  select case when p_kind = 'image' then images_used else videos_used end
+    into v_used
+    from public.generation_usage
+   where user_id = p_user_id and month_start = v_month
+   for update;
+
+  v_limit := case when p_kind = 'image' then 20 else 10 end;
+  if p_is_owner then
+    return query select true, -1;
+    return;
+  end if;
+
+  if v_used >= v_limit then
+    return query select false, 0;
+    return;
+  end if;
+
+  if p_kind = 'image' then
+    update public.generation_usage
+       set images_used = images_used + 1, updated_at = now()
+     where user_id = p_user_id and month_start = v_month;
+  else
+    update public.generation_usage
+       set videos_used = videos_used + 1, updated_at = now()
+     where user_id = p_user_id and month_start = v_month;
+  end if;
+
+  return query select true, v_limit - v_used - 1;
+end;
+$$;
+
+revoke all on function public.reserve_generation_quota(uuid, text, boolean) from public, anon, authenticated;
+grant execute on function public.reserve_generation_quota(uuid, text, boolean) to service_role;
