@@ -1,5 +1,5 @@
 import Stripe from "stripe";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -32,7 +32,7 @@ function periodEnd(subscription: Stripe.Subscription): string | null {
 }
 
 async function persistSubscription(
-  admin: ReturnType<typeof createClient>,
+  admin: SupabaseClient<any, "public", any>,
   subscription: Stripe.Subscription,
   paymentStatus: BillingStatus["payment_status"] = "unknown",
   invoiceId: string | null = null,
