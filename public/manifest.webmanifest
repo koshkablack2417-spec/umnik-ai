@@ -1,0 +1,17 @@
+{
+  "name": "Умник AI",
+  "short_name": "Умник",
+  "description": "Умный AI-помощник для учёбы, идей и творчества.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#edf4ff",
+  "theme_color": "#7daaff",
+  "icons": [
+    {
+      "src": "/brain-cap.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
