@@ -73,3 +73,11 @@ html[data-theme="light"] .avatar{background:#eee9ff;color:#5845a0}
 .pricingError{max-width:600px;margin:18px auto;color:#ffb6bf;font-size:13px;line-height:1.6}
 .pricingError a{color:#d2c9ff}
 @media(max-width:700px){.pricingGrid{grid-template-columns:1fr;max-width:420px}.pricingCard{padding:20px}.pricingIntro{margin-bottom:24px}}
+
+/* Umnik brand and top-level model switcher */
+.umnikTopTitle{display:block!important;font-size:20px;font-weight:800;letter-spacing:-.6px;white-space:nowrap}
+.topModelPicker{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);white-space:nowrap}
+.topModelSelect{max-width:175px;min-width:118px;border:1px solid var(--line);border-radius:11px;background:var(--panel);color:var(--text);padding:8px 10px;outline:none}
+.topModelSelect:focus{border-color:var(--accent)}
+@media(max-width:760px){.umnikTopTitle{display:block!important}.topModelPicker{gap:5px}.topModelPicker>span{display:none}.topModelSelect{max-width:130px;min-width:100px}}
+@media(max-width:520px){.umnikTopTitle{font-size:17px}.topModelSelect{max-width:112px;min-width:92px;padding:6px 7px}.topModelPicker{font-size:11px}}
