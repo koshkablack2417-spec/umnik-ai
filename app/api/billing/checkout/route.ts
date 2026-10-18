@@ -21,7 +21,7 @@ export async function POST(request: Request) {
   const supabase = createServerClient(supabaseUrl, supabaseKey, {
     cookies: {
       getAll: () => cookieStore.getAll(),
-      setAll: (items) => items.forEach(({ name, value, options }) => cookieStore.set(name, value, options)),
+      setAll: (items: { name: string; value: string; options?: Parameters<typeof cookieStore.set>[2] }[]) => items.forEach(({ name, value, options }) => cookieStore.set(name, value, options)),
     },
   });
   const { data: { user } } = await supabase.auth.getUser();
