@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs><linearGradient id="brain" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#78e8ff"/><stop offset=".55" stop-color="#5b8dff"/><stop offset="1" stop-color="#ad72ff"/></linearGradient><linearGradient id="cap" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#e5ddff"/><stop offset="1" stop-color="#8e7bff"/></linearGradient></defs>
+  <path d="M64 42 8 24 64 5l56 19z" fill="url(#cap)" stroke="#fff" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M24 30v20c0 8 18 16 40 16s40-8 40-16V30L64 43z" fill="#22264a" stroke="#b8aaff" stroke-width="2"/>
+  <path d="M112 27v35" stroke="#ffd166" stroke-width="4" stroke-linecap="round"/><path d="M104 61h16l-8 16z" fill="#ffd166"/>
+  <g fill="url(#brain)" stroke="#d7f8ff" stroke-width="2">
+    <circle cx="44" cy="65" r="18"/><circle cx="62" cy="55" r="19"/><circle cx="81" cy="66" r="18"/><circle cx="39" cy="82" r="15"/><circle cx="61" cy="83" r="19"/><circle cx="83" cy="83" r="15"/><circle cx="50" cy="98" r="13"/><circle cx="72" cy="99" r="13"/>
+  </g>
+  <rect x="36" y="68" width="56" height="25" rx="12.5" fill="#101832" stroke="#7df0ff" stroke-width="2.5"/>
+  <ellipse cx="51" cy="80" rx="5" ry="7" fill="#00e6ff"/><ellipse cx="77" cy="80" rx="5" ry="7" fill="#00e6ff"/>
+  <path d="M58 88h12" stroke="#b7f8ff" stroke-width="2" stroke-linecap="round"/>
+</svg>
