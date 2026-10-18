@@ -119,8 +119,8 @@ export default function Home() {
         <div>
           <div className="sideLabel">{t.tools}</div>
           <div className="modelList">
-            <button className="model" onClick={() => setError(language === "ru" ? "Генерация изображений появится после подключения отдельного API." : "Image generation needs a separate API integration.")}>▧　{t.images} <span className="soon">{t.soon}</span></button>
-            <button className="model" onClick={() => setError(language === "ru" ? "Генерация видео пока не подключена." : "Video generation is not connected yet.")}>▷　{t.video} <span className="soon">{t.soon}</span></button>
+            <button className="model" onClick={() => { window.location.href = "/studio"; }}>▧　{t.images} <span className="soon">AI</span></button>
+            <button className="model" onClick={() => { window.location.href = "/studio"; }}>▷　{t.video} <span className="soon">AI</span></button>
             <button className="model" onClick={() => setError(language === "ru" ? "Плагины будут добавлены в следующих версиях." : "Plugins will be added in a future version.")}>⊞　{t.plugins} <span className="soon">{t.soon}</span></button>
           </div>
         </div>
