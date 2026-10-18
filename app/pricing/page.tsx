@@ -35,6 +35,7 @@ export default function PricingPage() {
     <p className="pricingEyebrow">УМНИК AI · МЕГАМOЗГ</p>
     <h1>Выбери свой тариф</h1>
     <p className="pricingIntro">Когда бесплатного лимита недостаточно, можно подключить платный доступ.</p>
+    <p className="pricingPayments">Оплата через Stripe: основные кредитные и дебетовые карты, Apple Pay и Google Pay, если они доступны для твоего устройства, страны и банка.</p>
     <div className="pricingGrid">
       {plans.map(plan => <article key={plan.id} className={`pricingCard ${"featured" in plan && plan.featured ? "featured" : ""}`}>
         {"featured" in plan && plan.featured && <span className="pricingBadge">Популярный</span>}
@@ -45,6 +46,6 @@ export default function PricingPage() {
     </div>
     {error && <p className="pricingError" role="alert">{error} Если аккаунт ещё не подключён, <Link href="/login">сначала войди</Link>.</p>}
     {notice && <p role="status">{notice}</p>}
-    <p className="pricingLegal">Оплата обрабатывается Stripe; сайт не хранит данные банковской карты. Тарифы и регулярное списание должны быть настроены владельцем сайта. Перед реальной оплатой проверь условия, отмену подписки и налоги.</p>
+    <p className="pricingLegal">Платёжные методы показываются Stripe автоматически в зависимости от страны, валюты, браузера и настроек платёжного аккаунта. Ни один сервис не может гарантировать приём абсолютно каждой карты: банк-эмитент может отклонить платёж. Данные карты обрабатывает Stripe, сайт их не хранит. Подписка продлевается автоматически до отмены.</p>
   </main>;
 }
