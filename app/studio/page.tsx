@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import "./studio.css";
 
@@ -41,7 +41,7 @@ export default function StudioPage() {
     }
   }
 
-  async function generate(event: React.FormEvent<HTMLFormElement>) {
+  async function generate(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const cleanPrompt = prompt.trim();
     if (!cleanPrompt) { setError(t.needPrompt); return; }
@@ -104,7 +104,7 @@ export default function StudioPage() {
           {activeResult ? <div className="resultPreview">
             {activeResult.kind === "image" ? <img src={activeResult.url} alt={activeResult.prompt} /> : <video src={activeResult.url} controls playsInline />}
             <p className="resultPrompt">{activeResult.prompt}</p>
-            <div className="resultActions"><a href={activeResult.url} target="_blank" rel="noreferrer">{t.open}</a><a href={activeResult.url} download>{t.download}</a><button onClick={() => { if (activeResult) { const a = document.createElement("a"); a.href = activeResult.url; a.target = "_blank"; a.rel = "noreferrer"; a.click(); } }}>{t.save}</button></div>
+            <div className="resultActions"><a href={activeResult.url} target="_blank" rel="noreferrer">{t.open}</a><a href={activeResult.url} download>{t.download}</a><span className="savedLabel">✓ {t.saved}</span></div>
           </div> : <div className="previewEmpty"><div className="previewGlyph">{busy ? <span className="spinner"/> : "✧"}</div><strong>{busy ? t.generating : "Твоя следующая идея"}</strong><p>{busy ? (statusText || t.waiting) : "Результат появится здесь после генерации."}</p></div>}
         </section>
       </div>
