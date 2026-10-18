@@ -12,7 +12,7 @@ async function reserveGeneration(kind: Kind) {
   const authClient = createServerClient(url, anonKey, {
     cookies: {
       getAll: () => cookieStore.getAll(),
-      setAll: (items) => { items.forEach(({ name, value, options }) => cookieStore.set(name, value, options)); },
+      setAll: (items: { name: string; value: string; options?: Parameters<typeof cookieStore.set>[2] }[]) => { items.forEach(({ name, value, options }) => cookieStore.set(name, value, options)); },
     },
   });
   const { data: { user }, error: authError } = await authClient.auth.getUser();
