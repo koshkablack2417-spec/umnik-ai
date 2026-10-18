@@ -106,7 +106,8 @@ export default function Home() {
     if (!message || loading) return;
     setInput("");
     setError("");
-    const conversation = [...messages, { role: "user" as const, text: message }].slice(-24);\n    setMessages((old) => [...old, { role: "user", text: message }]);
+    const conversation = [...messages, { role: "user" as const, text: message }].slice(-24);
+    setMessages((old) => [...old, { role: "user", text: message }]);
     const supabase = getSupabaseBrowserClient();
     if (supabase) {
       void supabase.auth.getUser().then(({ data }) => {
