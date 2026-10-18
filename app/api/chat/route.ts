@@ -54,6 +54,17 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const message = typeof body.message === "string" ? body.message.trim() : "";
+    const rawHistory = Array.isArray(body.history) ? body.history : [];
+    const history: ChatMessage[] = rawHistory.slice(-24)
+      .filter((item: unknown): item is { role: string; content: string } =>
+        !!item && typeof item === "object" && "role" in item && "content" in item &&
+        ((item as { role: unknown }).role === "user" || (item as { role: unknown }).role === "assistant") &&
+        typeof (item as { content: unknown }).content === "string")
+      .map((item: { role: string; content: string }) => ({
+        role: item.role as "user" | "assistant",
+        content: item.content.slice(0, 12000),
+      }));
+
     const provider = (typeof body.provider === "string" ? body.provider : "gemini") as ProviderId;
     const language = typeof body.language === "string" ? body.language.slice(0, 12) : "ru";
 
