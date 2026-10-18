@@ -7,7 +7,7 @@ export async function GET(request: Request) {
   const code = url.searchParams.get("code");
   const next = url.searchParams.get("next");
   const destination = next && next.startsWith("/") && !next.startsWith("//") ? next : "/";
-  if (code) {
+  if (code && process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
     const cookieStore = await cookies();
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
