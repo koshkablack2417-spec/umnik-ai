@@ -1,12 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
-  <defs><linearGradient id="brain" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#78e8ff"/><stop offset=".55" stop-color="#5b8dff"/><stop offset="1" stop-color="#ad72ff"/></linearGradient><linearGradient id="cap" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#e5ddff"/><stop offset="1" stop-color="#8e7bff"/></linearGradient></defs>
-  <path d="M64 42 8 24 64 5l56 19z" fill="url(#cap)" stroke="#fff" stroke-width="2.5" stroke-linejoin="round"/>
-  <path d="M24 30v20c0 8 18 16 40 16s40-8 40-16V30L64 43z" fill="#22264a" stroke="#b8aaff" stroke-width="2"/>
-  <path d="M112 27v35" stroke="#ffd166" stroke-width="4" stroke-linecap="round"/><path d="M104 61h16l-8 16z" fill="#ffd166"/>
-  <g fill="url(#brain)" stroke="#d7f8ff" stroke-width="2">
-    <circle cx="44" cy="65" r="18"/><circle cx="62" cy="55" r="19"/><circle cx="81" cy="66" r="18"/><circle cx="39" cy="82" r="15"/><circle cx="61" cy="83" r="19"/><circle cx="83" cy="83" r="15"/><circle cx="50" cy="98" r="13"/><circle cx="72" cy="99" r="13"/>
-  </g>
-  <rect x="36" y="68" width="56" height="25" rx="12.5" fill="#101832" stroke="#7df0ff" stroke-width="2.5"/>
-  <ellipse cx="51" cy="80" rx="5" ry="7" fill="#00e6ff"/><ellipse cx="77" cy="80" rx="5" ry="7" fill="#00e6ff"/>
-  <path d="M58 88h12" stroke="#b7f8ff" stroke-width="2" stroke-linecap="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
+<defs>
+<linearGradient id="glass" x1="12" y1="8" x2="116" y2="122" gradientUnits="userSpaceOnUse"><stop stop-color="#DFF7FF"/><stop offset=".38" stop-color="#7DAAFF"/><stop offset=".7" stop-color="#8C83F7"/><stop offset="1" stop-color="#F8C9F0"/></linearGradient>
+<linearGradient id="brain" x1="35" y1="36" x2="93" y2="99" gradientUnits="userSpaceOnUse"><stop stop-color="#FFFFFF"/><stop offset=".35" stop-color="#C9F6FF"/><stop offset=".7" stop-color="#AAB8FF"/><stop offset="1" stop-color="#F2D7FF"/></linearGradient>
+<linearGradient id="cap" x1="30" y1="24" x2="99" y2="53" gradientUnits="userSpaceOnUse"><stop stop-color="#FFFFFF"/><stop offset=".5" stop-color="#C7D7FF"/><stop offset="1" stop-color="#9F8EFF"/></linearGradient>
+<linearGradient id="line" x1="44" y1="54" x2="86" y2="91" gradientUnits="userSpaceOnUse"><stop stop-color="#36D9FF"/><stop offset="1" stop-color="#C18BFF"/></linearGradient>
+<filter id="shadow" x="2" y="2" width="124" height="124" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="4"/></filter>
+</defs>
+<rect x="10" y="10" width="108" height="108" rx="30" fill="#627FEA" opacity=".26" filter="url(#shadow)"/>
+<rect x="8" y="7" width="112" height="114" rx="31" fill="url(#glass)"/><rect x="10" y="9" width="108" height="110" rx="29" fill="#FFFFFF" fill-opacity=".16"/>
+<path d="M17 36C25 15 43 11 63 12C88 12 105 19 112 38" stroke="#FFFFFF" stroke-opacity=".72" stroke-width="2.5" stroke-linecap="round"/><path d="M15 83C24 103 42 115 64 115C86 115 105 103 113 82" stroke="#FFFFFF" stroke-opacity=".28" stroke-width="2"/>
+<path d="M64 35 27 25 64 14 101 25 64 35Z" fill="url(#cap)" stroke="#FFFFFF" stroke-width="2" stroke-linejoin="round"/><path d="M37 29V41C37 48 49 53 64 53S91 48 91 41V29L64 37 37 29Z" fill="#6577D5" fill-opacity=".65" stroke="#FFFFFF" stroke-opacity=".72" stroke-width="1.5"/><path d="M96 27V49" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"/><path d="M91 49H101L96 58L91 49Z" fill="#FFE9A8" stroke="#FFFFFF" stroke-width="1"/>
+<g fill="url(#brain)" stroke="#FFFFFF" stroke-opacity=".88" stroke-width="1.8"><path d="M60 48C54 42 44 44 42 52C33 51 29 60 33 67C26 73 29 84 36 87C34 97 42 103 50 100C54 108 64 106 65 98V54C65 51 63 49 60 48Z"/><path d="M68 48C74 42 84 44 86 52C95 51 99 60 95 67C102 73 99 84 92 87C94 97 86 103 78 100C74 108 64 106 63 98V54C63 51 65 49 68 48Z"/></g>
+<g stroke="url(#line)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M47 61L55 67L47 74"/><path d="M81 61L73 67L81 74"/><path d="M48 87L56 82L60 87"/><path d="M80 87L72 82L68 87"/></g><g fill="#FFFFFF" stroke="#8DCFFF" stroke-width="1.3"><circle cx="46" cy="61" r="3.1"/><circle cx="82" cy="61" r="3.1"/><circle cx="47" cy="75" r="3.1"/><circle cx="81" cy="75" r="3.1"/></g><path d="M58 92H70" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-opacity=".95"/>
 </svg>
