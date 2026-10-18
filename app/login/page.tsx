@@ -8,6 +8,7 @@ type Stage = "input" | "code";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [token, setToken] = useState("");
   const [stage, setStage] = useState<Stage>("input");
   const [busy, setBusy] = useState(false);
@@ -17,6 +18,10 @@ export default function LoginPage() {
   async function sendCode(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(""); setMessage("");
+    if (!acceptedTerms) {
+      setError("Чтобы продолжить, прочитай и прими пользовательское соглашение.");
+      return;
+    }
     const supabase = getSupabaseBrowserClient();
     if (!supabase) {
       setError("Вход пока не настроен: владелец сайта должен добавить NEXT_PUBLIC_SUPABASE_URL и NEXT_PUBLIC_SUPABASE_ANON_KEY.");
@@ -57,6 +62,10 @@ export default function LoginPage() {
 
   async function oauth(provider: "google" | "apple") {
     setError(""); setMessage("");
+    if (!acceptedTerms) {
+      setError("Чтобы продолжить, прочитай и прими пользовательское соглашение.");
+      return;
+    }
     const supabase = getSupabaseBrowserClient();
     if (!supabase) {
       setError("Авторизация пока не настроена владельцем сайта.");
@@ -83,6 +92,17 @@ export default function LoginPage() {
           <button type="button" className="oauthButton" onClick={() => void oauth("google")} disabled={busy}><span className="googleG">G</span>　Продолжить с Google</button>
         </div>
         <div className="authDivider"><span>вход по электронной почте</span></div>
+        {stage === "input" && (
+          <label className="authFinePrint" style={{ display: "flex", alignItems: "flex-start", gap: "8px", textAlign: "left", margin: "12px 0" }}>
+            <input
+              type="checkbox"
+              checked={acceptedTerms}
+              onChange={e => setAcceptedTerms(e.target.checked)}
+              style={{ marginTop: "3px", flexShrink: 0 }}
+            />
+            <span>Я прочитал(а) и принимаю <Link href="/terms" target="_blank" rel="noreferrer" style={{ textDecoration: "underline" }}>Пользовательское соглашение</Link>.</span>
+          </label>
+        )}
         {stage === "input" ? (
           <form className="authForm" onSubmit={sendCode}>
             <label htmlFor="email">Электронная почта</label>
