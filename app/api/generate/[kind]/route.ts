@@ -1,4 +1,35 @@
 import { NextResponse } from "next/server";
+import { createServerClient } from "@supabase/ssr";
+import { createClient } from "@supabase/supabase-js";
+import { cookies } from "next/headers";
+
+async function reserveGeneration(kind: Kind) {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !anonKey || !serviceKey) return { ok: false as const, status: 503, error: "Лимиты генерации не настроены администратором." };
+  const cookieStore = await cookies();
+  const authClient = createServerClient(url, anonKey, {
+    cookies: {
+      getAll: () => cookieStore.getAll(),
+      setAll: (items) => { items.forEach(({ name, value, options }) => cookieStore.set(name, value, options)); },
+    },
+  });
+  const { data: { user }, error: authError } = await authClient.auth.getUser();
+  if (authError || !user) return { ok: false as const, status: 401, error: "Войди в аккаунт, чтобы использовать генерацию." };
+  const ownerEmails = (process.env.UMNIK_OWNER_EMAILS || "").split(",").map((v) => v.trim().toLowerCase()).filter(Boolean);
+  const isOwner = !!user.email && ownerEmails.includes(user.email.toLowerCase());
+  const admin = createClient(url, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } });
+  const { data, error } = await admin.rpc("reserve_generation_quota", { p_user_id: user.id, p_kind: kind, p_is_owner: isOwner });
+  if (error) {
+    console.error("Generation quota reservation failed", error.message);
+    return { ok: false as const, status: 503, error: "Не удалось проверить лимит. Администратор должен применить supabase/schema.sql." };
+  }
+  const result = Array.isArray(data) ? data[0] : data;
+  if (!result?.allowed) return { ok: false as const, status: 429, error: kind === "image" ? "Месячный лимит изображений (20) исчерпан." : "Месячный лимит видео (10) исчерпан." };
+  return { ok: true as const, remaining: result.remaining };
+}
+
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -23,6 +54,9 @@ export async function POST(request: Request, context: { params: Promise<{ kind: 
     const prompt = typeof body.prompt === "string" ? body.prompt.trim() : "";
     if (!prompt) return NextResponse.json({ error: "Опиши, что нужно создать." }, { status: 400 });
     if (prompt.length > 2000) return NextResponse.json({ error: "Описание должно быть не длиннее 2 000 символов." }, { status: 413 });
+
+    const quota = await reserveGeneration(kind);
+    if (!quota.ok) return NextResponse.json({ error: quota.error }, { status: quota.status });
 
     const model = getModel(kind);
     const input = kind === "image"
