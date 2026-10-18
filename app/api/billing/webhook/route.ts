@@ -173,7 +173,7 @@ export async function POST(request: Request) {
       }
       case "charge.refunded": {
         const charge = event.data.object as Stripe.Charge;
-        const invoiceRef = charge.invoice;
+        const invoiceRef = (charge as Stripe.Charge & { invoice?: string | Stripe.Invoice | null }).invoice;
         const invoiceIdFromCharge = typeof invoiceRef === "string" ? invoiceRef : invoiceRef?.id;
         if (invoiceIdFromCharge) {
           const invoice = await stripe.invoices.retrieve(invoiceIdFromCharge);
