@@ -1,0 +1,70 @@
+name: Build Umnik AI Android APK
+
+on:
+  workflow_dispatch:
+    inputs:
+      site_url:
+        description: "Public HTTPS URL of the deployed Umnik AI website"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate website URL
+        env:
+          SITE_URL: ${{ inputs.site_url }}
+        run: |
+          node -e 'const u = new URL(process.env.SITE_URL); if (u.protocol !== "https:" || !u.hostname.includes(".")) { console.error("Enter a valid public HTTPS website URL."); process.exit(1); }'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Create Capacitor Android wrapper
+        env:
+          SITE_URL: ${{ inputs.site_url }}
+        run: |
+          mkdir -p apk-wrapper/www
+          cd apk-wrapper
+          npm init -y
+          npm install @capacitor/core @capacitor/android
+          npm install --save-dev @capacitor/cli
+          printf '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head><body><p>Opening Umnik AI…</p></body></html>' > www/index.html
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const siteUrl = new URL(process.env.SITE_URL);
+          fs.writeFileSync('capacitor.config.json', JSON.stringify({
+            appId: 'ai.umnik.app',
+            appName: 'Umnik AI',
+            webDir: 'www',
+            server: { url: siteUrl.href, cleartext: false, androidScheme: 'https' }
+          }, null, 2));
+          NODE
+          npx cap add android
+          npx cap sync android
+
+      - name: Build debug APK
+        run: |
+          cd apk-wrapper/android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: umnik-ai-android-apk
+          path: apk-wrapper/android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
