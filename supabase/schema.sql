@@ -38,3 +38,21 @@ create table if not exists public.billing_subscriptions (
 );
 alter table public.billing_subscriptions enable row level security;
 -- No client-facing policies: only the trusted webhook service role may write/read these records.
+
+
+-- Stripe webhook idempotency ledger. Insert only after an event has been processed successfully.
+create table if not exists public.billing_webhook_events (
+  event_id text primary key,
+  event_type text not null,
+  event_created_at timestamptz not null,
+  processed_at timestamptz not null default now()
+);
+alter table public.billing_webhook_events enable row level security;
+-- No client-facing policies: service role only.
+
+-- Additional payment state for access/billing decisions.
+alter table public.billing_subscriptions
+  add column if not exists payment_status text not null default 'unknown'
+    check (payment_status in ('unknown', 'paid', 'failed', 'refunded'));
+alter table public.billing_subscriptions
+  add column if not exists last_invoice_id text;
