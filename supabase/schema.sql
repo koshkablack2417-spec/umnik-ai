@@ -25,6 +25,32 @@ create policy "Users can delete their own chat messages"
   using (auth.uid() = user_id);
 
 
+-- Per-user preferences and independent chat sessions.
+create table if not exists public.user_settings (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  theme text not null default 'light' check (theme in ('auto', 'light', 'dark')),
+  language text not null default 'ru' check (char_length(language) <= 12),
+  provider text not null default 'gemini' check (provider in ('gemini', 'openai', 'claude', 'grok', 'qwen')),
+  active_chat_id uuid not null default gen_random_uuid(),
+  updated_at timestamptz not null default now()
+);
+alter table public.user_settings enable row level security;
+drop policy if exists "Users can read their own settings" on public.user_settings;
+create policy "Users can read their own settings"
+  on public.user_settings for select using (auth.uid() = user_id);
+drop policy if exists "Users can insert their own settings" on public.user_settings;
+create policy "Users can insert their own settings"
+  on public.user_settings for insert with check (auth.uid() = user_id);
+drop policy if exists "Users can update their own settings" on public.user_settings;
+create policy "Users can update their own settings"
+  on public.user_settings for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+-- Existing rows receive their own chat id during migration; new messages are grouped by chat.
+alter table public.chat_messages
+  add column if not exists chat_id uuid not null default gen_random_uuid();
+create index if not exists chat_messages_user_chat_created_idx
+  on public.chat_messages (user_id, chat_id, created_at desc);
+
 -- Stripe subscription records. Never expose this table to browser clients.
 create table if not exists public.billing_subscriptions (
   id uuid primary key default gen_random_uuid(),
