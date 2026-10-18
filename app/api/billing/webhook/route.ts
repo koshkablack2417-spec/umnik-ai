@@ -50,11 +50,12 @@ async function persistSubscription(
   };
   if (paymentStatus !== "unknown") {
     // A late invoice event must never undo a refund recorded for that same invoice.
-    const { data: existing } = await admin
+    const { data } = await admin
       .from("billing_subscriptions")
       .select("payment_status,last_invoice_id")
       .eq("stripe_subscription_id", subscription.id)
       .maybeSingle();
+    const existing = data as { payment_status: string | null; last_invoice_id: string | null } | null;
     const sameInvoiceWasRefunded =
       Boolean(invoiceId) &&
       existing?.last_invoice_id === invoiceId &&
