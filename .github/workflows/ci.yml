@@ -18,7 +18,7 @@ jobs:
           node-version: 20
       - name: Install dependencies
         run: npm install
-      - name: Check TypeScript
-        run: npm run typecheck
-      - name: Build Next.js
+      - name: Build Next.js (includes TypeScript validation)
         run: npm run build
+      - name: Check TypeScript explicitly
+        run: npm run typecheck
