@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { providers, type ProviderId } from "@/lib/providers";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 type Message = { role: "user" | "assistant"; text: string };
 type Theme = "auto" | "light" | "dark";
@@ -44,6 +45,7 @@ export default function Home() {
   const [error, setError] = useState("");
   const [theme, setTheme] = useState<Theme>("auto");
   const [language, setLanguage] = useState<Language>("ru");
+  const [userEmail, setUserEmail] = useState<string | null>(null);
 
   useEffect(() => {
     try {
@@ -52,6 +54,32 @@ export default function Home() {
       if (savedTheme && ["auto","light","dark"].includes(savedTheme)) setTheme(savedTheme);
       if (savedLanguage && languages.some((item) => item.id === savedLanguage)) setLanguage(savedLanguage);
     } catch {}
+  }, []);
+
+  useEffect(() => {
+    const supabase = getSupabaseBrowserClient();
+    if (!supabase) return;
+    let active = true;
+    supabase.auth.getUser().then(async ({ data }) => {
+      if (!active) return;
+      setUserEmail(data.user?.email ?? null);
+      if (!data.user) return;
+      const { data: history } = await supabase
+        .from("chat_messages")
+        .select("role,text")
+        .eq("user_id", data.user.id)
+        .order("created_at", { ascending: true })
+        .limit(100);
+      if (active && history?.length) {
+        setMessages(history.filter((item): item is { role: "user" | "assistant"; text: string } =>
+          (item.role === "user" || item.role === "assistant") && typeof item.text === "string"
+        ));
+      }
+    });
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUserEmail(session?.user.email ?? null);
+    });
+    return () => { active = false; authListener.subscription.unsubscribe(); };
   }, []);
 
   useEffect(() => {
@@ -79,6 +107,12 @@ export default function Home() {
     setInput("");
     setError("");
     setMessages((old) => [...old, { role: "user", text: message }]);
+    const supabase = getSupabaseBrowserClient();
+    if (supabase) {
+      void supabase.auth.getUser().then(({ data }) => {
+        if (data.user) void supabase.from("chat_messages").insert({ user_id: data.user.id, role: "user", text: message });
+      });
+    }
     setLoading(true);
     try {
       const response = await fetch("/api/chat", {
@@ -89,6 +123,11 @@ export default function Home() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Something went wrong.");
       setMessages((old) => [...old, { role: "assistant", text: data.text }]);
+      if (supabase) {
+        void supabase.auth.getUser().then(({ data: authData }) => {
+          if (authData.user) void supabase.from("chat_messages").insert({ user_id: authData.user.id, role: "assistant", text: data.text });
+        });
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not connect to AI.");
     } finally {
@@ -104,7 +143,7 @@ export default function Home() {
   return (
     <main className="shell">
       <aside className="sidebar">
-        <div className="brand"><span className="brandIcon">✦</span><span>Умник AI</span></div>
+        <div className="brand"><img src="/brain-cap.svg" alt="" className="brandIconImage" /><span>Умник AI</span></div>
         <button className="newChat" onClick={() => { setMessages([]); setError(""); }}>{t.newChat}</button>
         <div>
           <div className="sideLabel">{t.models}</div>
@@ -129,12 +168,12 @@ export default function Home() {
 
       <section className="main">
         <header className="topbar">
-          <div className="mobileBrand"><span className="brandIcon">✦</span>Умник AI</div>
+          <div className="mobileBrand"><img src="/brain-cap.svg" alt="" className="brandIconImage" />Умник AI</div>
           <div className="topTitle">{t.workspace}</div>
           <div className="topRight">
             <label className="settingControl"><span>{t.theme}</span><select className="modelSelect" value={theme} onChange={(event) => setTheme(event.target.value as Theme)} aria-label={t.theme}><option value="auto">{t.auto}</option><option value="light">{t.light}</option><option value="dark">{t.dark}</option></select></label>
             <label className="settingControl"><span>{t.language}</span><select className="modelSelect languageSelect" value={language} onChange={(event) => setLanguage(event.target.value as Language)} aria-label={t.language}>{languages.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
-            <span className="status">{t.ready}</span><span className="avatar">У</span>
+            <span className="status">{t.ready}</span><a className="authLink" href="/login">{userEmail ? userEmail : "Войти"}</a><span className="avatar">🧠</span>
           </div>
         </header>
 
