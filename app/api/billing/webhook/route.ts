@@ -66,7 +66,7 @@ async function persistSubscription(
   const end = periodEnd(subscription);
   if (end) record.current_period_end = end;
 
-  const { error } = await admin.from("billing_subscriptions").upsert(record, {
+  const { error } = await admin.from("billing_subscriptions").upsert(record as never, {
     onConflict: "stripe_subscription_id",
   });
   if (error) throw error;
