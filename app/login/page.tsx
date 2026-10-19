@@ -5,7 +5,7 @@ import Link from "next/link";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 type Stage = "input" | "code";
-type Lang = "ru" | "en" | "es";
+type Lang = "ru" | "en" | "es" | "fr" | "sv" | "ja" | "zh" | "de" | "it" | "pt" | "ar" | "ko" | "hi" | "nl" | "pl" | "tr" | "uk" | "fi" | "no" | "da";
 const words: Record<Lang, Record<string, string>> = {
   ru: { back:"← На главную", eyebrow:"ТВОЙ УМНЫЙ ПОМОЩНИК", signIn:"Войти в Умник AI", check:"Проверь свою почту", desc:"Аккаунт сохраняет настройки и историю чатов между посещениями.", apple:"　Продолжить с Apple", google:"Продолжить с Google", emailDivider:"или войти по электронной почте", terms:"Я прочитал(а) и принимаю", termsLink:"Пользовательское соглашение", email:"Электронная почта", send:"Прислать код на почту", sending:"Отправляем…", token:"Код подтверждения", tokenPlaceholder:"Введи код из письма", verify:"Подтвердить код и войти", verifying:"Проверяем…", change:"Изменить адрес почты", fine:"Не делись кодами подтверждения. Доступность Apple и Google зависит от настроек сайта.", acceptError:"Чтобы продолжить, прими пользовательское соглашение.", missing:"Вход пока не настроен: владелец сайта должен добавить NEXT_PUBLIC_SUPABASE_URL и NEXT_PUBLIC_SUPABASE_ANON_KEY.", sent:"Проверь почту. Введи одноразовый код из письма; иногда письмо попадает в «Спам».", sendError:"Не удалось отправить код.", verifyError:"Код не подошёл. Попробуй ещё раз." },
   en: { back:"← Home", eyebrow:"YOUR SMART AI ASSISTANT", signIn:"Sign in to Umnik AI", check:"Check your email", desc:"Your account keeps your settings and chat history between visits.", apple:"　Continue with Apple", google:"Continue with Google", emailDivider:"or continue with email", terms:"I have read and accept the", termsLink:"Terms of Service", email:"Email address", send:"Send me a sign-in code", sending:"Sending…", token:"Verification code", tokenPlaceholder:"Enter the code from your email", verify:"Verify code and sign in", verifying:"Verifying…", change:"Change email address", fine:"Never share verification codes. Apple and Google sign-in depend on site configuration.", acceptError:"Please accept the Terms of Service to continue.", missing:"Sign-in is not configured yet. The site owner must add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.", sent:"Check your inbox for the one-time code. It may arrive in Spam.", sendError:"Could not send the code.", verifyError:"That code did not work. Please try again." },
@@ -22,12 +22,12 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [language, setLanguage] = useState<Lang>("ru");
   const [brand, setBrand] = useState("Умник AI");
-  const t = words[language];
+  const t = words[language] ?? words.en;
 
   useEffect(() => {
     try {
       const saved = localStorage.getItem("umnik-language") || "ru";
-      setLanguage(saved === "ru" || saved === "es" ? saved : "en");
+      setLanguage((["ru","en","es","fr","sv","ja","zh","de","it","pt","ar","ko","hi","nl","pl","tr","uk","fi","no","da"].includes(saved) ? saved : "en") as Lang);
       const names: Record<string,string> = { ru:"Умник AI", en:"Umnik AI", es:"Umnik AI", fr:"Umnik AI", sv:"Umnik AI", ja:"ウムニク AI", zh:"乌姆尼克 AI", de:"Umnik AI", it:"Umnik AI", pt:"Umnik AI", ar:"أومنيك AI", ko:"움니크 AI", hi:"उमनिक AI", nl:"Umnik AI", pl:"Umnik AI", tr:"Umnik AI", uk:"Умник AI", fi:"Umnik AI", no:"Umnik AI", da:"Umnik AI" };
       setBrand(names[saved] || "Umnik AI");
       const theme = localStorage.getItem("umnik-theme") || "light";
