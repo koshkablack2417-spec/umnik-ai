@@ -128,6 +128,8 @@ export default function Home() {
   }, [language]);
 
   const t = copy[language];
+  const localizedBrand: Record<Language, string> = { ru: "Умник AI", en: "Umnik AI", es: "Umnik AI", fr: "Umnik AI", sv: "Umnik AI", ja: "ウムニク AI", zh: "乌姆尼克 AI", de: "Umnik AI", it: "Umnik AI", pt: "Umnik AI", ar: "أومنيك AI", ko: "움니크 AI", hi: "उमनिक AI", nl: "Umnik AI", pl: "Umnik AI", tr: "Umnik AI", uk: "Умник AI", fi: "Umnik AI", no: "Umnik AI", da: "Umnik AI" };
+  const brand = localizedBrand[language];
   const suggestions = [
     { icon: "✦", title: t.s1, text: t.s1t },
     { icon: "⌘", title: t.s2, text: t.s2t },
@@ -178,7 +180,7 @@ export default function Home() {
   return (
     <main className="shell">
       <aside className="sidebar">
-        <div className="brand"><img src="/brain-cap.svg" alt="" className="brandIconImage" /><span>Умник AI</span></div>
+        <div className="brand"><img src="/brain-cap.svg" alt="" className="brandIconImage" /><span>{brand}</span></div>
         <button className="newChat" onClick={() => {
           const nextChatId = crypto.randomUUID();
           setChatId(nextChatId);
@@ -208,8 +210,8 @@ export default function Home() {
 
       <section className="main">
         <header className="topbar">
-          <div className="mobileBrand"><img src="/brain-cap.svg" alt="" className="brandIconImage" />Умник AI</div>
-          <div className="topTitle umnikTopTitle">Умник</div>
+          <div className="mobileBrand"><img src="/brain-cap.svg" alt="" className="brandIconImage" />{brand}</div>
+          <div className="topTitle umnikTopTitle">{brand.replace(/ AI$/, "")}</div>
           <label className="topModelPicker"><span>Модель</span><select className="modelSelect topModelSelect" value={provider} onChange={(event) => setProvider(event.target.value as ProviderId)} aria-label="Выбрать модель">{providers.map((item) => <option key={item.id} value={item.id}>{item.name}{item.enabled ? "" : " — скоро"}</option>)}</select></label>
           <div className="topRight">
             <label className="settingControl"><span>{t.theme}</span><select className="modelSelect" value={theme} onChange={(event) => setTheme(event.target.value as Theme)} aria-label={t.theme}><option value="auto">{t.auto}</option><option value="light">{t.light}</option><option value="dark">{t.dark}</option></select></label>
@@ -237,7 +239,7 @@ export default function Home() {
           </div>}
 
           <form className="composer" onSubmit={handleSubmit}>
-            <textarea value={input} onChange={(event) => setInput(event.target.value)} placeholder={t.placeholder} aria-label={t.placeholder} onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); void sendMessage(); } }} />
+            <textarea value={input} onChange={(event) => setInput(event.target.value)} placeholder={t.placeholder.replaceAll("Умник AI", brand).replaceAll("Umnik AI", brand)} aria-label={t.placeholder} onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); void sendMessage(); } }} />
             <div className="composerFoot">
               <select className="modelSelect" value={provider} onChange={(event) => setProvider(event.target.value as ProviderId)} aria-label="AI model">
                 {providers.map((item) => <option key={item.id} value={item.id}>{item.name}{item.enabled ? "" : ` — ${t.soon.toLowerCase()}`}</option>)}
@@ -247,7 +249,7 @@ export default function Home() {
             </div>
           </form>
           {error && <div className="error" role="alert">{error}</div>}
-          <div className="notice">{t.notice}</div>
+          <div className="notice">{t.notice.replaceAll("Умник AI", brand).replaceAll("Umnik AI", brand)}</div>
         </div>
       </section>
     </main>
