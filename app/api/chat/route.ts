@@ -1,12 +1,11 @@
-import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-type ProviderId = "gemini" | "openai" | "claude" | "grok" | "qwen";
+type ProviderId = "openai" | "claude" | "grok" | "qwen";
 type ChatMessage = { role: "user" | "assistant"; content: string };
 
-const providerConfig: Record<Exclude<ProviderId, "gemini" | "claude">, {
+const providerConfig: Record<Exclude<ProviderId, "claude">, {
   env: string;
   endpoint: string;
   model: string;
@@ -65,12 +64,12 @@ export async function POST(request: Request) {
         content: item.content.slice(0, 12000),
       }));
 
-    const provider = (typeof body.provider === "string" ? body.provider : "gemini") as ProviderId;
+    const provider = (typeof body.provider === "string" ? body.provider : "openai") as ProviderId;
     const language = typeof body.language === "string" ? body.language.slice(0, 12) : "ru";
 
     if (!message) return NextResponse.json({ error: "Напиши сообщение, чтобы начать." }, { status: 400 });
     if (message.length > 12000) return NextResponse.json({ error: "Сообщение слишком длинное (максимум 12 000 символов)." }, { status: 413 });
-    if (!["gemini", "openai", "claude", "grok", "qwen"].includes(provider)) {
+    if (!["openai", "claude", "grok", "qwen"].includes(provider)) {
       return NextResponse.json({ error: "Неизвестный AI-провайдер." }, { status: 400 });
     }
 
@@ -83,17 +82,7 @@ export async function POST(request: Request) {
     const system = systemPrompt(language);
     let text = "";
 
-    if (provider === "gemini") {
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (!apiKey) return NextResponse.json({ error: "Gemini не настроен: добавь GEMINI_API_KEY в переменные окружения сайта." }, { status: 503 });
-      const ai = new GoogleGenAI({ apiKey });
-      const result = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: conversation.map((item) => ({ role: item.role === "assistant" ? "model" : "user", parts: [{ text: item.content }] })),
-        config: { systemInstruction: system },
-      });
-      text = result.text ?? "";
-    } else if (provider === "claude") {
+    if (provider === "claude") {
       const apiKey = process.env.ANTHROPIC_API_KEY;
       if (!apiKey) return NextResponse.json({ error: "Claude не настроен: добавь ANTHROPIC_API_KEY в переменные окружения сайта." }, { status: 503 });
       const response = await fetch("https://api.anthropic.com/v1/messages", {
