@@ -38,7 +38,7 @@ const copy: Record<Language, Record<string,string>> = {
 };
 
 export default function Home() {
-  const [provider, setProvider] = useState<ProviderId>("gemini");
+  const [provider, setProvider] = useState<ProviderId>("openai");
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
@@ -57,7 +57,7 @@ export default function Home() {
       if (savedTheme && ["auto","light","dark"].includes(savedTheme)) setTheme(savedTheme);
       if (savedLanguage && languages.some((item) => item.id === savedLanguage)) setLanguage(savedLanguage);
     } catch {}
-  ,modelLabel:"Model",artifacts:"Artefakter",media:"Medier",pricing:"Priser",login:"Log ind",development:"Nogle funktioner er stadig under udvikling.",pluginSoon:"Plugins tilføjes i en fremtidig version."}, []);
+  }, []);
 
   useEffect(() => {
     const supabase = getSupabaseBrowserClient();
@@ -94,7 +94,7 @@ export default function Home() {
       ) as Message[]);
       await supabase.from("user_settings").upsert({
         user_id: data.user.id, theme: settings?.theme ?? "light",
-        language: settings?.language ?? "ru", provider: settings?.provider ?? "gemini",
+        language: settings?.language ?? "ru", provider: settings?.provider && providers.some((item) => item.id === settings.provider) ? settings.provider : "openai",
         active_chat_id: activeChatId, updated_at: new Date().toISOString(),
       }, { onConflict: "user_id" });
       if (active) setCloudSettingsLoaded(true);
