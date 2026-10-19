@@ -81,3 +81,57 @@ html[data-theme="light"] .avatar{background:#eee9ff;color:#5845a0}
 .topModelSelect:focus{border-color:var(--accent)}
 @media(max-width:760px){.umnikTopTitle{display:block!important}.topModelPicker{gap:5px}.topModelPicker>span{display:none}.topModelSelect{max-width:130px;min-width:100px}}
 @media(max-width:520px){.umnikTopTitle{font-size:17px}.topModelSelect{max-width:112px;min-width:92px;padding:6px 7px}.topModelPicker{font-size:11px}}
+
+
+/* iOS-inspired glass refresh */
+:root{--bg:#edf4ff;--panel:rgba(255,255,255,.62);--panel2:rgba(255,255,255,.48);--line:rgba(255,255,255,.76);--muted:#63738d;--text:#14233f;--accent:#3488ff;--accent2:#7658f6}
+html,body{background:radial-gradient(ellipse at 12% 0%,#d8eaff 0,transparent 42%),radial-gradient(ellipse at 90% 18%,#fce6dc 0,transparent 35%),linear-gradient(135deg,#f7faff,#e7f1ff 55%,#f4edff);background-attachment:fixed;color:var(--text)}
+.shell{gap:0;background:transparent}
+.sidebar{background:rgba(255,255,255,.45);backdrop-filter:blur(32px) saturate(160%);-webkit-backdrop-filter:blur(32px) saturate(160%);border-right:1px solid rgba(255,255,255,.8);box-shadow:8px 0 40px #7995bd12}
+.brand{letter-spacing:-.6px}
+.brandIconImage{filter:drop-shadow(0 5px 12px #4d93ff55)}
+.newChat,.suggestion,.composer,.bubble.assistant,.authCard,.oauthButton,.authForm input{background:rgba(255,255,255,.58);backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);border:1px solid rgba(255,255,255,.85);box-shadow:0 8px 30px rgba(76,108,160,.09)}
+.newChat{color:#17437f;border-radius:16px}
+.model{color:#455a78;border-radius:13px}
+.model.active{background:rgba(65,137,255,.14);border-color:rgba(74,143,255,.25);color:#123e7c}
+.sideLabel,.sideBottom,.composerHint,.notice{color:#71819a}
+.topbar{background:rgba(255,255,255,.42);backdrop-filter:blur(30px) saturate(160%);-webkit-backdrop-filter:blur(30px) saturate(160%);border-bottom:1px solid rgba(255,255,255,.78)}
+.topTitle{color:#152846}
+.hero h1{letter-spacing:-1.8px;color:#142746}
+.eyebrow{color:#347ee8}
+.gradient{background-image:linear-gradient(100deg,#3488ff,#7658f6 58%,#32bfa4)}
+.suggestion{color:#425675;border-radius:20px;transition:transform .2s,box-shadow .2s}
+.suggestion:hover{background:rgba(255,255,255,.82);border-color:#c7dcff;transform:translateY(-2px);box-shadow:0 12px 30px #7298cc22}
+.suggestion strong{color:#1c3559}
+.composer{border-radius:24px;background:rgba(255,255,255,.78);box-shadow:0 16px 50px rgba(70,105,155,.13);border-color:rgba(255,255,255,.9)}
+.composer:focus-within{border-color:#8bbdff;box-shadow:0 0 0 4px #75aaff20,0 16px 50px #648dc522}
+.composer textarea{color:#1a2d4c}
+.composer textarea::placeholder{color:#8594aa}
+.modelSelect{background:rgba(255,255,255,.7);color:#334967;border-color:rgba(172,194,224,.55);border-radius:12px}
+.send,.authPrimary{background:linear-gradient(135deg,#48a0ff,#526dff 58%,#8a6af5);border:1px solid rgba(255,255,255,.5);border-radius:14px;box-shadow:0 6px 18px #5389f544}
+.bubble.user{background:linear-gradient(135deg,#328bff,#7660f6);color:white;border:1px solid #ffffff66;box-shadow:0 8px 22px #5289d52b}
+.bubble.assistant{color:#253b5b;border-radius:20px}
+.authPage.iosAuth{background:radial-gradient(ellipse at 10% 0%,#d6eaff 0,transparent 42%),radial-gradient(ellipse at 92% 18%,#ffe8dc 0,transparent 38%),linear-gradient(135deg,#f8fbff,#e8f2ff 55%,#f0eaff);color:#152846}
+.iosAuthCard{background:rgba(255,255,255,.62);backdrop-filter:blur(36px) saturate(170%);-webkit-backdrop-filter:blur(36px) saturate(170%);border:1px solid rgba(255,255,255,.88);border-radius:30px;box-shadow:0 28px 90px rgba(69,105,157,.2);color:#152846}
+.iosAuthCard .authBack{color:#536a89}
+.iosAuthCard .authEyebrow{color:#3c82e8}
+.iosAuthCard .authDescription,.iosAuthCard .authFinePrint{color:#657893}
+.iosAuthCard .oauthButton{color:#1c3558;border-radius:15px}
+.iosAuthCard .authDivider{color:#8190a5}
+.iosAuthCard .authForm label{color:#344d6f}
+.iosAuthCard .authForm input{color:#183252;border-radius:14px}
+.iosAuthCard .authForm input::placeholder{color:#8a9ab0}
+.iosAuthCard .iosTerms{display:flex;align-items:flex-start;gap:10px;margin:12px 0;color:#536987}
+.iosAuthCard .iosTerms input{margin-top:3px;flex:none;accent-color:#3989ff}
+.iosAuthCard .iosTerms a{color:#2775df;text-decoration:underline}
+.iosAuthCard .authTextButton{color:#347ee8}
+.authLink{background:rgba(255,255,255,.54);border-color:rgba(255,255,255,.85);color:#345274;border-radius:12px}
+.authLink:hover{border-color:#8bbdff}
+.avatar{background:linear-gradient(135deg,#b4d8ff,#d8c7ff);color:#284d84}
+html[data-theme="dark"] body{background:radial-gradient(ellipse at 10% 0%,#1d3154 0,transparent 40%),radial-gradient(ellipse at 90% 15%,#382447 0,transparent 35%),#080e1a;color:#eef4ff}
+html[data-theme="dark"] .sidebar,html[data-theme="dark"] .topbar{background:rgba(13,21,37,.72);border-color:#ffffff1a}
+html[data-theme="dark"] .newChat,html[data-theme="dark"] .suggestion,html[data-theme="dark"] .composer,html[data-theme="dark"] .bubble.assistant,html[data-theme="dark"] .modelSelect{background:rgba(20,31,52,.72);border-color:#ffffff20;color:#e8f1ff}
+html[data-theme="dark"] .suggestion strong,html[data-theme="dark"] .topTitle{color:#f3f7ff}
+html[data-theme="dark"] .composer textarea{color:#eef4ff}
+html[data-theme="dark"] .model{color:#bac8df}
+@media(max-width:760px){.sidebar{display:none}.topbar{background:rgba(255,255,255,.58);border-radius:0 0 20px 20px}.content{padding-top:26px}.hero h1{font-size:clamp(34px,9vw,46px)}.suggestion{border-radius:18px}.composer{border-radius:21px}}
