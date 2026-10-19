@@ -107,6 +107,11 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    document.documentElement.lang = language;
+    document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
+  }, [language]);
+
+  useEffect(() => {
     if (!userId || !chatId || !cloudSettingsLoaded) return;
     const supabase = getSupabaseBrowserClient();
     if (!supabase) return;
