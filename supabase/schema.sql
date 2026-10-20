@@ -12,14 +12,17 @@ create index if not exists chat_messages_user_created_idx
 
 alter table public.chat_messages enable row level security;
 
+drop policy if exists "Users can read their own chat messages" on public.chat_messages;
 create policy "Users can read their own chat messages"
   on public.chat_messages for select
   using (auth.uid() = user_id);
 
+drop policy if exists "Users can insert their own chat messages" on public.chat_messages;
 create policy "Users can insert their own chat messages"
   on public.chat_messages for insert
   with check (auth.uid() = user_id);
 
+drop policy if exists "Users can delete their own chat messages" on public.chat_messages;
 create policy "Users can delete their own chat messages"
   on public.chat_messages for delete
   using (auth.uid() = user_id);
@@ -30,10 +33,16 @@ create table if not exists public.user_settings (
   user_id uuid primary key references auth.users(id) on delete cascade,
   theme text not null default 'light' check (theme in ('auto', 'light', 'dark')),
   language text not null default 'ru' check (char_length(language) <= 12),
-  provider text not null default 'gemini' check (provider in ('gemini', 'openai', 'claude', 'grok', 'qwen')),
+  provider text not null default 'openai' check (provider in ('openai', 'claude', 'grok', 'qwen')),
   active_chat_id uuid not null default gen_random_uuid(),
   updated_at timestamptz not null default now()
 );
+-- Keep persisted model preferences aligned with the providers exposed by the app.
+alter table public.user_settings alter column provider set default 'openai';
+update public.user_settings set provider = 'openai' where provider = 'gemini';
+alter table public.user_settings drop constraint if exists user_settings_provider_check;
+alter table public.user_settings
+  add constraint user_settings_provider_check check (provider in ('openai', 'claude', 'grok', 'qwen'));
 alter table public.user_settings enable row level security;
 drop policy if exists "Users can read their own settings" on public.user_settings;
 create policy "Users can read their own settings"
