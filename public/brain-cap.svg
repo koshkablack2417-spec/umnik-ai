@@ -1,15 +1,22 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
 <defs>
-<linearGradient id="glass" x1="12" y1="8" x2="116" y2="122" gradientUnits="userSpaceOnUse"><stop stop-color="#DFF7FF"/><stop offset=".38" stop-color="#7DAAFF"/><stop offset=".7" stop-color="#8C83F7"/><stop offset="1" stop-color="#F8C9F0"/></linearGradient>
-<linearGradient id="brain" x1="35" y1="36" x2="93" y2="99" gradientUnits="userSpaceOnUse"><stop stop-color="#FFFFFF"/><stop offset=".35" stop-color="#C9F6FF"/><stop offset=".7" stop-color="#AAB8FF"/><stop offset="1" stop-color="#F2D7FF"/></linearGradient>
-<linearGradient id="cap" x1="30" y1="24" x2="99" y2="53" gradientUnits="userSpaceOnUse"><stop stop-color="#FFFFFF"/><stop offset=".5" stop-color="#C7D7FF"/><stop offset="1" stop-color="#9F8EFF"/></linearGradient>
-<linearGradient id="line" x1="44" y1="54" x2="86" y2="91" gradientUnits="userSpaceOnUse"><stop stop-color="#36D9FF"/><stop offset="1" stop-color="#C18BFF"/></linearGradient>
-<filter id="shadow" x="2" y="2" width="124" height="124" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="4"/></filter>
+ <linearGradient id="bg" x1="12" y1="8" x2="112" y2="120" gradientUnits="userSpaceOnUse"><stop stop-color="#24105E"/><stop offset=".55" stop-color="#4820B8"/><stop offset="1" stop-color="#140A3E"/></linearGradient>
+ <linearGradient id="glass" x1="20" y1="18" x2="108" y2="106" gradientUnits="userSpaceOnUse"><stop stop-color="#B7E9FF"/><stop offset=".35" stop-color="#8B74FF"/><stop offset=".7" stop-color="#D49AFF"/><stop offset="1" stop-color="#6548F5"/></linearGradient>
+ <linearGradient id="brain" x1="37" y1="42" x2="91" y2="91" gradientUnits="userSpaceOnUse"><stop stop-color="#E9D9FF"/><stop offset=".45" stop-color="#9271FF"/><stop offset="1" stop-color="#C5B5FF"/></linearGradient>
+ <linearGradient id="cap" x1="25" y1="20" x2="101" y2="45" gradientUnits="userSpaceOnUse"><stop stop-color="#F7E8FF"/><stop offset=".45" stop-color="#A9DFFF"/><stop offset=".75" stop-color="#B7A0FF"/><stop offset="1" stop-color="#F2B9FF"/></linearGradient>
+ <filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
 </defs>
-<rect x="10" y="10" width="108" height="108" rx="30" fill="#627FEA" opacity=".26" filter="url(#shadow)"/>
-<rect x="8" y="7" width="112" height="114" rx="31" fill="url(#glass)"/><rect x="10" y="9" width="108" height="110" rx="29" fill="#FFFFFF" fill-opacity=".16"/>
-<path d="M17 36C25 15 43 11 63 12C88 12 105 19 112 38" stroke="#FFFFFF" stroke-opacity=".72" stroke-width="2.5" stroke-linecap="round"/><path d="M15 83C24 103 42 115 64 115C86 115 105 103 113 82" stroke="#FFFFFF" stroke-opacity=".28" stroke-width="2"/>
-<path d="M64 35 27 25 64 14 101 25 64 35Z" fill="url(#cap)" stroke="#FFFFFF" stroke-width="2" stroke-linejoin="round"/><path d="M37 29V41C37 48 49 53 64 53S91 48 91 41V29L64 37 37 29Z" fill="#6577D5" fill-opacity=".65" stroke="#FFFFFF" stroke-opacity=".72" stroke-width="1.5"/><path d="M96 27V49" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"/><path d="M91 49H101L96 58L91 49Z" fill="#FFE9A8" stroke="#FFFFFF" stroke-width="1"/>
-<g fill="url(#brain)" stroke="#FFFFFF" stroke-opacity=".88" stroke-width="1.8"><path d="M60 48C54 42 44 44 42 52C33 51 29 60 33 67C26 73 29 84 36 87C34 97 42 103 50 100C54 108 64 106 65 98V54C65 51 63 49 60 48Z"/><path d="M68 48C74 42 84 44 86 52C95 51 99 60 95 67C102 73 99 84 92 87C94 97 86 103 78 100C74 108 64 106 63 98V54C63 51 65 49 68 48Z"/></g>
-<g stroke="url(#line)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M47 61L55 67L47 74"/><path d="M81 61L73 67L81 74"/><path d="M48 87L56 82L60 87"/><path d="M80 87L72 82L68 87"/></g><g fill="#FFFFFF" stroke="#8DCFFF" stroke-width="1.3"><circle cx="46" cy="61" r="3.1"/><circle cx="82" cy="61" r="3.1"/><circle cx="47" cy="75" r="3.1"/><circle cx="81" cy="75" r="3.1"/></g><path d="M58 92H70" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-opacity=".95"/>
+<rect x="4" y="4" width="120" height="120" rx="34" fill="url(#bg)" stroke="#9A77FF" stroke-width="2"/>
+<rect x="7" y="7" width="114" height="114" rx="31" fill="none" stroke="#E8C7FF" stroke-opacity=".48"/>
+<path d="M16 39C22 17 42 10 64 11C87 11 105 20 112 40" fill="none" stroke="#DDBEFF" stroke-width="2" stroke-linecap="round" opacity=".8"/>
+<g filter="url(#glow)">
+<path d="M64 35 22 25 64 12 106 25 64 35Z" fill="url(#cap)" stroke="#F7E9FF" stroke-width="2" stroke-linejoin="round"/>
+<path d="M36 29V40C36 48 49 53 64 53S92 48 92 40V29L64 37 36 29Z" fill="#7651DB" stroke="#DCC8FF" stroke-width="1.5"/>
+<path d="M98 28V50" stroke="#F4DFFF" stroke-width="2.5" stroke-linecap="round"/><circle cx="98" cy="53" r="3.5" fill="#B8E7FF"/><path d="M94 58H102L98 68Z" fill="url(#cap)" stroke="#F7D9FF" stroke-width="1.2"/>
+<g fill="url(#brain)" stroke="#DCCBFF" stroke-width="2" stroke-linejoin="round">
+<path d="M61 49C55 42 45 44 42 51C33 50 28 59 32 67C25 74 29 84 36 87C34 97 42 103 50 99C54 107 63 105 64 97V55C64 52 63 50 61 49Z"/>
+<path d="M67 49C73 42 83 44 86 51C95 50 100 59 96 67C103 74 99 84 92 87C94 97 86 103 78 99C74 107 65 105 64 97V55C64 52 65 50 67 49Z"/>
+</g>
+<g fill="none" stroke="#E9DFFF" stroke-width="3.5" stroke-linecap="round"><path d="M43 59C50 54 57 60 54 66S43 72 44 79"/><path d="M82 58C74 54 70 61 75 66S86 73 82 80"/><path d="M48 88C54 82 59 87 59 91"/><path d="M80 89C75 83 69 87 69 92"/></g>
+</g>
 </svg>
