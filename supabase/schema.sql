@@ -14,18 +14,18 @@ alter table public.chat_messages enable row level security;
 
 drop policy if exists "Users can read their own chat messages" on public.chat_messages;
 create policy "Users can read their own chat messages"
-  on public.chat_messages for select
-  using (auth.uid() = user_id);
+  on public.chat_messages for select to authenticated
+  using ((select auth.uid()) = user_id);
 
 drop policy if exists "Users can insert their own chat messages" on public.chat_messages;
 create policy "Users can insert their own chat messages"
-  on public.chat_messages for insert
-  with check (auth.uid() = user_id);
+  on public.chat_messages for insert to authenticated
+  with check ((select auth.uid()) = user_id);
 
 drop policy if exists "Users can delete their own chat messages" on public.chat_messages;
 create policy "Users can delete their own chat messages"
-  on public.chat_messages for delete
-  using (auth.uid() = user_id);
+  on public.chat_messages for delete to authenticated
+  using ((select auth.uid()) = user_id);
 
 
 -- Per-user preferences and independent chat sessions.
@@ -46,13 +46,13 @@ alter table public.user_settings
 alter table public.user_settings enable row level security;
 drop policy if exists "Users can read their own settings" on public.user_settings;
 create policy "Users can read their own settings"
-  on public.user_settings for select using (auth.uid() = user_id);
+  on public.user_settings for select to authenticated using ((select auth.uid()) = user_id);
 drop policy if exists "Users can insert their own settings" on public.user_settings;
 create policy "Users can insert their own settings"
-  on public.user_settings for insert with check (auth.uid() = user_id);
+  on public.user_settings for insert to authenticated with check ((select auth.uid()) = user_id);
 drop policy if exists "Users can update their own settings" on public.user_settings;
 create policy "Users can update their own settings"
-  on public.user_settings for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
+  on public.user_settings for update to authenticated using ((select auth.uid()) = user_id) with check ((select auth.uid()) = user_id);
 
 -- Existing rows receive their own chat id during migration; new messages are grouped by chat.
 alter table public.chat_messages
@@ -71,6 +71,8 @@ create table if not exists public.billing_subscriptions (
   current_period_end timestamptz,
   updated_at timestamptz not null default now()
 );
+create index if not exists billing_subscriptions_user_id_idx
+  on public.billing_subscriptions (user_id);
 alter table public.billing_subscriptions enable row level security;
 -- No client-facing policies: only the trusted webhook service role may write/read these records.
 
@@ -93,6 +95,15 @@ alter table public.billing_subscriptions
   add column if not exists last_invoice_id text;
 
 
+-- Keep the existing RLS auto-enable event trigger, but prevent direct API execution.
+do $
+begin
+  if to_regprocedure('public.rls_auto_enable()') is not null then
+    execute 'revoke all on function public.rls_auto_enable() from public, anon, authenticated';
+  end if;
+end;
+$;
+
 -- Monthly media quotas: 20 images and 10 videos per user.
 create table if not exists public.generation_usage (
   user_id uuid not null references auth.users(id) on delete cascade,
@@ -113,7 +124,7 @@ create or replace function public.reserve_generation_quota(
 returns table(allowed boolean, remaining integer)
 language plpgsql
 security definer
-set search_path = public
+set search_path = pg_catalog
 as $$
 declare
   v_month date := date_trunc('month', now())::date;
