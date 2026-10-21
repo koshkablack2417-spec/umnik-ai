@@ -96,13 +96,13 @@ alter table public.billing_subscriptions
 
 
 -- Keep the existing RLS auto-enable event trigger, but prevent direct API execution.
-do $
+do $revoke$
 begin
   if to_regprocedure('public.rls_auto_enable()') is not null then
     execute 'revoke all on function public.rls_auto_enable() from public, anon, authenticated';
   end if;
 end;
-$;
+$revoke$;
 
 -- Monthly media quotas: 20 images and 10 videos per user.
 create table if not exists public.generation_usage (
