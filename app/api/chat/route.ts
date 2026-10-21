@@ -2,50 +2,58 @@ import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-type ProviderId = "openai" | "claude" | "grok" | "qwen";
+const MODEL_ID = "gpt-6-luna";
 type ChatMessage = { role: "user" | "assistant"; content: string };
 
-const providerConfig: Record<Exclude<ProviderId, "claude">, {
-  env: string;
-  endpoint: string;
-  model: string;
-}> = {
-  openai: { env: "OPENAI_API_KEY", endpoint: "https://api.openai.com/v1/chat/completions", model: "gpt-4o-mini" },
-  grok: { env: "XAI_API_KEY", endpoint: "https://api.x.ai/v1/chat/completions", model: "grok-3-mini" },
-  qwen: { env: "QWEN_API_KEY", endpoint: "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions", model: "qwen-plus" },
-};
-
 const systemPrompt = (language: string) =>
-  `Ты — Умник 6.5, единый AI-помощник проекта «Умник AI». Твоё имя — Умник. Если пользователь спрашивает, как тебя зовут или какая ты модель, отвечай: «Меня зовут Умник 6.5»; не называй себя ChatGPT, GPT, Claude, Grok или Qwen. При этом не утверждай, что технически являешься оригинальной моделью OpenAI или что разные нейросети физически объединены в одну: ты — единый помощник «Умник 6.5», который может работать через разные подключённые AI-провайдеры. Отвечай прежде всего на последнее сообщение пользователя и учитывай предыдущую переписку только как контекст. Отвечай на языке пользователя; язык интерфейса: ${language}. По умолчанию пиши ясно, естественно и по делу; для сложных задач используй короткие разделы и пошаговые инструкции. Если просят код, предоставляй цельный, согласованный пример и указывай важные предпосылки. Не выдумывай факты, источники, ссылки, цитаты, результаты проверок или выполненные действия. Если не знаешь ответа или не хватает данных, честно скажи об этом и задай один конкретный уточняющий вопрос, когда он необходим. Для вычислений проверяй шаги и единицы. Не утверждай, что можешь просматривать интернет, видеть аккаунты, запускать код или менять внешние сервисы, если соответствующий инструмент реально не предоставлен. Не проси пользователя публиковать пароли, API-ключи, токены или другие секреты.`;
+  "Ты — Умник AI, помощник на базе GPT-6 Luna от OpenAI. Если пользователь спрашивает, какая модель работает в чате, отвечай: «GPT-6 Luna от OpenAI». Не утверждай, что ты ChatGPT как продукт или что работаешь на других AI-провайдерах. " +
+  "Отвечай прежде всего на последнее сообщение пользователя и учитывай предыдущую переписку только как контекст. Отвечай на языке пользователя; язык интерфейса: " + language + ". " +
+  "По умолчанию пиши ясно, естественно и по делу; для сложных задач используй короткие разделы и пошаговые инструкции. Если просят код, предоставляй цельный, согласованный пример и указывай важные предпосылки. " +
+  "Не выдумывай факты, источники, ссылки, цитаты, результаты проверок или выполненные действия. Если не знаешь ответа или не хватает данных, честно скажи об этом и задай один конкретный уточняющий вопрос, когда он необходим. " +
+  "Для вычислений проверяй шаги и единицы. Не утверждай, что можешь просматривать интернет, видеть аккаунты, запускать код или менять внешние сервисы, если соответствующий инструмент реально не предоставлен. Не проси пользователя публиковать пароли, API-ключи, токены или другие секреты.";
 
-function extractOpenAICompatibleText(data: unknown): string {
-  const obj = data as { choices?: Array<{ message?: { content?: string | Array<{ text?: string }> } }> };
-  const content = obj.choices?.[0]?.message?.content;
-  if (typeof content === "string") return content;
-  if (Array.isArray(content)) return content.map((part) => part.text ?? "").join("");
-  return "";
+function extractOpenAIText(data: unknown): string {
+  const obj = data as {
+    output?: Array<{
+      type?: string;
+      content?: Array<{ type?: string; text?: string }>;
+    }>;
+  };
+  return (obj.output ?? [])
+    .filter((item) => item.type === "message")
+    .flatMap((item) => item.content ?? [])
+    .filter((part) => part.type === "output_text")
+    .map((part) => part.text ?? "")
+    .join("");
 }
 
-async function openAICompatible(endpoint: string, apiKey: string, model: string, history: ChatMessage[], system: string) {
-  const response = await fetch(endpoint, {
+async function openAI(history: ChatMessage[], language: string) {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) throw new Error("OPENAI_API_KEY is missing.");
+
+  const response = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
-    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+    headers: { Authorization: "Bearer " + apiKey, "Content-Type": "application/json" },
     body: JSON.stringify({
-      model,
-      messages: [{ role: "system", content: system }, ...history],
-      temperature: 0.7,
+      model: MODEL_ID,
+      reasoning: { effort: "none" },
+      instructions: systemPrompt(language),
+      input: history,
+      max_output_tokens: 4096,
     }),
     signal: AbortSignal.timeout(60_000),
   });
+
   if (!response.ok) {
     const detail = await response.text().catch(() => "");
-    console.error("AI provider error:", response.status, detail.slice(0, 500));
-    if (response.status === 401 || response.status === 403) throw new Error("Ключ выбранной нейросети недействителен или не имеет доступа.");
-    if (response.status === 429) throw new Error("У нейросети временно закончился лимит запросов. Попробуй позже.");
-    throw new Error("Провайдер нейросети временно не смог ответить.");
+    console.error("OpenAI API error:", response.status, detail.slice(0, 500));
+    if (response.status === 401 || response.status === 403) throw new Error("Ключ OPENAI_API_KEY недействителен или у него нет доступа к GPT-6 Luna.");
+    if (response.status === 429) throw new Error("У OpenAI временно закончился лимит запросов. Попробуй позже.");
+    throw new Error("OpenAI временно не смог ответить.");
   }
-  const text = extractOpenAICompatibleText(await response.json());
-  if (!text) throw new Error("Нейросеть вернула пустой ответ. Попробуй ещё раз.");
+
+  const text = extractOpenAIText(await response.json());
+  if (!text) throw new Error("GPT-6 Luna вернула пустой ответ. Попробуй ещё раз.");
   return text;
 }
 
@@ -64,13 +72,12 @@ export async function POST(request: Request) {
         content: item.content.slice(0, 12000),
       }));
 
-    const provider = (typeof body.provider === "string" ? body.provider : "openai") as ProviderId;
     const language = typeof body.language === "string" ? body.language.slice(0, 12) : "ru";
 
     if (!message) return NextResponse.json({ error: "Напиши сообщение, чтобы начать." }, { status: 400 });
     if (message.length > 12000) return NextResponse.json({ error: "Сообщение слишком длинное (максимум 12 000 символов)." }, { status: 413 });
-    if (!["openai", "claude", "grok", "qwen"].includes(provider)) {
-      return NextResponse.json({ error: "Неизвестный AI-провайдер." }, { status: 400 });
+    if (!process.env.OPENAI_API_KEY) {
+      return NextResponse.json({ error: "Чат не настроен: добавь OPENAI_API_KEY в серверные переменные окружения сайта." }, { status: 503 });
     }
 
     // The chat UI may include the current message in history as well as in message.
@@ -79,41 +86,16 @@ export async function POST(request: Request) {
     const conversation: ChatMessage[] = lastHistoryMessage?.role === "user" && lastHistoryMessage.content === message
       ? history
       : [...history, { role: "user", content: message }];
-    const system = systemPrompt(language);
-    let text = "";
 
-    if (provider === "claude") {
-      const apiKey = process.env.ANTHROPIC_API_KEY;
-      if (!apiKey) return NextResponse.json({ error: "Claude не настроен: добавь ANTHROPIC_API_KEY в переменные окружения сайта." }, { status: 503 });
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: { "x-api-key": apiKey, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-        body: JSON.stringify({ model: "claude-3-5-haiku-latest", max_tokens: 2048, system, messages: conversation }),
-        signal: AbortSignal.timeout(60_000),
-      });
-      if (!response.ok) {
-        const detail = await response.text().catch(() => "");
-        console.error("Anthropic API error:", response.status, detail.slice(0, 500));
-        if (response.status === 401 || response.status === 403) throw new Error("Ключ Claude недействителен или не имеет доступа.");
-        if (response.status === 429) throw new Error("У Claude временно закончился лимит запросов. Попробуй позже.");
-        throw new Error("Claude временно не смог ответить.");
-      }
-      const data = await response.json() as { content?: Array<{ type?: string; text?: string }> };
-      text = (data.content ?? []).filter((part) => part.type === "text").map((part) => part.text ?? "").join("");
-    } else {
-      const config = providerConfig[provider];
-      const apiKey = process.env[config.env];
-      if (!apiKey) return NextResponse.json({ error: `${provider === "openai" ? "ChatGPT" : provider === "grok" ? "Grok" : "Qwen"} не настроен: добавь ${config.env} в переменные окружения сайта.` }, { status: 503 });
-      text = await openAICompatible(config.endpoint, apiKey, config.model, conversation, system);
-    }
-
-    return NextResponse.json({ text: text || "Не удалось получить текстовый ответ." });
+    const text = await openAI(conversation, language);
+    return NextResponse.json({ text });
   } catch (error) {
     console.error("Chat API error:", error);
     const message = error instanceof Error ? error.message : "";
-    const known = ["Ключ ", "У нейросети", "У Claude", "Провайдер ", "Нейросеть вернула", "Claude временно"];
+    const known = ["Ключ OPENAI_API_KEY", "У OpenAI", "OpenAI временно", "GPT-6 Luna вернула"];
     if (known.some((prefix) => message.startsWith(prefix))) return NextResponse.json({ error: message }, { status: 502 });
+    if (message.includes("OPENAI_API_KEY is missing")) return NextResponse.json({ error: "Чат не настроен: добавь OPENAI_API_KEY в серверные переменные окружения сайта." }, { status: 503 });
     if (message.includes("timed out") || message.includes("aborted")) return NextResponse.json({ error: "Нейросеть отвечает слишком долго. Попробуй ещё раз." }, { status: 504 });
-    return NextResponse.json({ error: "Не удалось получить ответ от AI. Проверь настройки API и попробуй ещё раз." }, { status: 500 });
+    return NextResponse.json({ error: "Не удалось получить ответ от GPT-6 Luna. Проверь настройки API и попробуй ещё раз." }, { status: 500 });
   }
 }
