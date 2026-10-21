@@ -33,16 +33,16 @@ create table if not exists public.user_settings (
   user_id uuid primary key references auth.users(id) on delete cascade,
   theme text not null default 'light' check (theme in ('auto', 'light', 'dark')),
   language text not null default 'ru' check (char_length(language) <= 12),
-  provider text not null default 'openai' check (provider in ('openai', 'claude', 'grok', 'qwen')),
+  provider text not null default 'openai' check (provider = 'openai'),
   active_chat_id uuid not null default gen_random_uuid(),
   updated_at timestamptz not null default now()
 );
--- Keep persisted model preferences aligned with the providers exposed by the app.
+-- Keep persisted model preferences aligned with the single chat model.
 alter table public.user_settings alter column provider set default 'openai';
-update public.user_settings set provider = 'openai' where provider = 'gemini';
+update public.user_settings set provider = 'openai' where provider <> 'openai';
 alter table public.user_settings drop constraint if exists user_settings_provider_check;
 alter table public.user_settings
-  add constraint user_settings_provider_check check (provider in ('openai', 'claude', 'grok', 'qwen'));
+  add constraint user_settings_provider_check check (provider = 'openai');
 alter table public.user_settings enable row level security;
 drop policy if exists "Users can read their own settings" on public.user_settings;
 create policy "Users can read their own settings"
